@@ -18,22 +18,30 @@ const ARC_END_DEG = 82;
 
 function usePanelRadius() {
   const [radius, setRadius] = useState(800);
+  const [compact, setCompact] = useState(false);
 
   useEffect(() => {
-    const update = () => setRadius(window.innerWidth < 640 ? Math.min(600, window.innerWidth * 1.2) : 800);
+    const update = () => {
+      const narrow = window.innerWidth < 640;
+      setCompact(narrow);
+      const next = narrow
+        ? Math.min(window.innerWidth * 1.02, window.innerHeight * 0.9, 480)
+        : 800;
+      setRadius(Math.max(300, next));
+    };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  return radius;
+  return { radius, compact };
 }
 
 export function SiteMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const radius = usePanelRadius();
-  const arcRadius = radius * 0.78;
+  const { radius, compact } = usePanelRadius();
+  const arcRadius = radius * (compact ? 0.55 : 0.78);
 
   useEffect(() => {
     const timer = setTimeout(() => setOpen(false), 0);
@@ -45,8 +53,13 @@ export function SiteMenu() {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -56,7 +69,7 @@ export function SiteMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-label={open ? "Close menu" : "Open menu"}
-        className={`fixed top-5 right-5 z-[80] w-12 h-12 rounded-full flex flex-col items-center justify-center gap-[5px] cursor-pointer transition-colors duration-300 ${
+        className={`fixed top-4 right-4 sm:top-5 sm:right-5 z-[80] w-11 h-11 sm:w-12 sm:h-12 rounded-full flex flex-col items-center justify-center gap-[5px] cursor-pointer transition-colors duration-300 ${
           open ? "bg-[#06141B] shadow-[0_8px_24px_-10px_rgba(6,20,27,0.5)]" : "bg-white shadow-[0_8px_24px_-10px_rgba(6,20,27,0.35)]"
         }`}
       >
@@ -133,15 +146,15 @@ export function SiteMenu() {
                           className="group relative flex flex-col items-center"
                         >
                           <span
-                            className={`flex items-center justify-center w-16 h-16 rounded-full border shadow-[0_8px_24px_-10px_rgba(6,20,27,0.35)] backdrop-blur-md transition-all duration-300 group-hover:scale-110 ${
+                            className={`flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full border shadow-[0_8px_24px_-10px_rgba(6,20,27,0.35)] backdrop-blur-md transition-all duration-300 group-hover:scale-110 ${
                               isActive
                                 ? "bg-[#06141B]/85 border-white/30 text-white"
                                 : "bg-white/55 border-white/80 text-[#06141B] group-hover:bg-white/80"
                             }`}
                           >
-                            <Icon className="w-6 h-6" strokeWidth={2.2} />
+                            <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.2} />
                           </span>
-                          <span className="absolute top-full mt-2 whitespace-nowrap rounded-full border border-white/70 bg-white/50 backdrop-blur-md px-2.5 py-0.5 text-sm font-semibold tracking-wide text-[#06141B]">
+                          <span className="absolute top-full mt-1.5 sm:mt-2 whitespace-nowrap rounded-full border border-white/70 bg-white/50 backdrop-blur-md px-2 py-0.5 text-xs sm:text-sm font-semibold tracking-wide text-[#06141B]">
                             {label}
                           </span>
                         </Link>

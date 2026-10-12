@@ -6,9 +6,9 @@ export function SiteLogo() {
     <Link
       href="/"
       aria-label="Sahil Mishra — home"
-      className="fixed top-6 left-6 z-[80] block"
+      className="fixed top-4 left-4 sm:top-6 sm:left-6 z-[80] block"
     >
-      <Image src="/site-logo-mark.png" alt="" width={404} height={195} priority className="h-9 w-auto" />
+      <Image src="/site-logo-mark.png" alt="" width={404} height={195} priority className="h-8 w-auto sm:h-9" />
     </Link>
   );
 }

@@ -33,8 +33,8 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-24 px-6">
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-[0_30px_70px_-25px_rgba(6,20,27,0.35)] p-10 sm:p-16 text-center">
+    <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-[0_30px_70px_-25px_rgba(6,20,27,0.35)] p-6 sm:p-16 text-center">
         <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">Let&apos;s Work Together</h2>
         <p className="mt-4 text-muted-custom text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
           Open to backend engineering roles, system architecture consulting, and high-throughput

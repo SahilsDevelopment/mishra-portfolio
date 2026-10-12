@@ -1,46 +1,99 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-const WORD = "Welcome";
-const EASE = [0.22, 1, 0.36, 1] as const;
-const VISIBLE_MS = 2900;
 const DONE_EVENT = "welcome-intro-done";
+const PAINT = ["#06141B", "#11212D", "#253745", "#4A5C6A"];
+
+// Drop, bounce, bounce, then burst. Times are fractions of BALL_S.
+const BALL_S = 2.15;
+const BALL_TIMES = [0, 0.33, 0.51, 0.66, 0.76, 0.87, 0.93, 1];
+const BURST_AT = BALL_S * 0.87;
+const VISIBLE_MS = 3400;
 
 let introDone = false;
 
-export function useWelcomeDone() {
-  const [done, setDone] = useState(introDone);
-  useEffect(() => {
-    if (introDone) return;
-    const onDone = () => setDone(true);
-    window.addEventListener(DONE_EVENT, onDone);
-    return () => window.removeEventListener(DONE_EVENT, onDone);
-  }, []);
-  return done;
+function subscribeToIntro(onChange: () => void) {
+  window.addEventListener(DONE_EVENT, onChange);
+  return () => window.removeEventListener(DONE_EVENT, onChange);
 }
 
+export function useWelcomeDone() {
+  return useSyncExternalStore(subscribeToIntro, () => introDone, () => false);
+}
+
+function useIsClient() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
+function seeded(seed: number) {
+  const x = Math.sin(seed * 9301 + 49297) * 233280;
+  return x - Math.floor(x);
+}
+
+const DROPLETS = Array.from({ length: 44 }, (_, i) => {
+  const angle = (i / 44) * Math.PI * 2 + seeded(i) * 0.35;
+  const reach = 0.28 + seeded(i + 100) * 0.62;
+  const size = 8 + Math.round(seeded(i + 200) * 34);
+  return {
+    angle,
+    dx: Math.cos(angle) * reach,
+    dy: Math.sin(angle) * reach,
+    size,
+    stretch: 1.4 + seeded(i + 300) * 1.8,
+    color: PAINT[i % PAINT.length],
+    delay: seeded(i + 400) * 0.08,
+  };
+});
+
+const SPLATS = Array.from({ length: 9 }, (_, i) => {
+  const angle = (i / 9) * Math.PI * 2 + seeded(i + 500);
+  const reach = 0.08 + seeded(i + 600) * 0.14;
+  return {
+    dx: Math.cos(angle) * reach,
+    dy: Math.sin(angle) * reach,
+    size: 52 + Math.round(seeded(i + 700) * 70),
+    radius: `${40 + seeded(i + 800) * 30}% ${60 - seeded(i + 900) * 20}% ${45 + seeded(i + 1000) * 25}% ${55 - seeded(i + 1100) * 15}%`,
+  };
+});
+
+const FALL = [0.55, 0, 1, 0.55] as const;
+const RISE = [0.15, 0.7, 0.3, 1] as const;
+
 export function WelcomeIntro() {
-  const [visible, setVisible] = useState(true);
+  const isClient = useIsClient();
+  const [playing, setPlaying] = useState(true);
+  const reduced = isClient && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const span = isClient ? Math.max(window.innerWidth, window.innerHeight) : 1600;
 
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = setTimeout(() => {
-      setVisible(false);
+    if (!isClient || introDone) return;
+    if (reduced) {
       introDone = true;
       window.dispatchEvent(new Event(DONE_EVENT));
-    }, reduced ? 600 : VISIBLE_MS);
+      return;
+    }
+
     document.documentElement.style.overflow = "hidden";
+    const timer = setTimeout(() => {
+      setPlaying(false);
+      introDone = true;
+      window.dispatchEvent(new Event(DONE_EVENT));
+      document.documentElement.style.overflow = "";
+    }, VISIBLE_MS);
+
     return () => {
       clearTimeout(timer);
       document.documentElement.style.overflow = "";
     };
-  }, []);
+  }, [isClient, reduced]);
 
-  useEffect(() => {
-    if (!visible) document.documentElement.style.overflow = "";
-  }, [visible]);
+  const visible = isClient && playing && !reduced;
 
   return (
     <AnimatePresence>
@@ -48,66 +101,88 @@ export function WelcomeIntro() {
         <motion.div
           key="welcome"
           aria-hidden
-          className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden bg-[#06141B]"
-          initial={{ clipPath: "circle(150% at 50% 50%)" }}
-          exit={{ clipPath: "circle(0% at 50% 50%)" }}
-          transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+          className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden bg-white"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         >
-          <motion.div
-            className="pointer-events-none absolute h-[70vmin] w-[70vmin] rounded-full bg-[radial-gradient(circle,rgba(155,171,168,0.35)_0%,rgba(37,55,69,0.2)_45%,transparent_70%)] blur-2xl"
-            initial={{ scale: 0.3, opacity: 0 }}
-            animate={{ scale: [0.3, 1.15, 1], opacity: [0, 1, 0.8] }}
-            transition={{ duration: 2, ease: EASE }}
+          <motion.span
+            className="absolute h-10 w-28 rounded-[50%] bg-[#06141B]/15 blur-md"
+            initial={{ opacity: 0, scale: 0.2, y: 78 }}
+            animate={{
+              opacity: [0, 0.85, 0.15, 0.7, 0.1, 0.9, 0],
+              scale: [0.2, 1, 0.35, 0.85, 0.3, 1.15, 1.5],
+            }}
+            transition={{ duration: BALL_S, times: BALL_TIMES, ease: "easeOut" }}
           />
 
-          {Array.from({ length: 14 }, (_, i) => {
-            const angle = (i / 14) * Math.PI * 2;
-            return (
-              <motion.span
-                key={i}
-                className="absolute h-1 w-1 rounded-full bg-[#CCCDCF]"
-                initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
-                animate={{
-                  x: Math.cos(angle) * (160 + (i % 3) * 60),
-                  y: Math.sin(angle) * (110 + (i % 4) * 40),
-                  opacity: [0, 1, 0],
-                  scale: [0, 1.4, 0.4],
-                }}
-                transition={{ delay: 0.5 + (i % 5) * 0.08, duration: 1.8, ease: EASE }}
-              />
-            );
-          })}
+          <motion.span
+            className="absolute h-32 w-32 rounded-full bg-[#06141B] shadow-[0_22px_36px_-14px_rgba(6,20,27,0.6)]"
+            initial={{ y: "-70vh", scaleX: 0.86, scaleY: 1.22 }}
+            animate={{
+              y: ["-70vh", "0vh", "-22vh", "0vh", "-9vh", "0vh", "0vh", "0vh"],
+              scaleX: [0.86, 0.86, 1.28, 0.9, 1.16, 0.92, 1.55, 0],
+              scaleY: [1.22, 1.22, 0.62, 1.14, 0.72, 1.1, 0.5, 0],
+            }}
+            transition={{
+              duration: BALL_S,
+              times: BALL_TIMES,
+              ease: [FALL, RISE, FALL, RISE, FALL, [0.3, 0, 0.2, 1], [0.4, 0, 1, 1]],
+            }}
+          />
 
-          <div className="relative flex flex-col items-center">
-            <h1 className="flex text-[clamp(3.5rem,12vw,9rem)] font-extrabold tracking-[-0.03em] leading-none">
-              {WORD.split("").map((letter, i) => (
-                <motion.span
-                  key={i}
-                  className="inline-block bg-gradient-to-b from-white via-[#CCCDCF] to-[#9BABA8] bg-clip-text text-transparent"
-                  initial={{ opacity: 0, y: 40, filter: "blur(14px)", rotateX: 70 }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)", rotateX: 0 }}
-                  transition={{ delay: 0.25 + i * 0.08, duration: 0.9, ease: EASE }}
-                >
-                  {letter}
-                </motion.span>
-              ))}
-            </h1>
+          <motion.span
+            className="absolute h-24 w-24 rounded-full border-[3px] border-[#253745]"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 8], opacity: [0.55, 0] }}
+            transition={{ delay: BURST_AT, duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          />
 
+          {SPLATS.map((splat, i) => (
             <motion.span
-              className="mt-6 h-px bg-gradient-to-r from-transparent via-[#9BABA8] to-transparent"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "min(22rem, 70vw)", opacity: 1 }}
-              transition={{ delay: 1.1, duration: 1, ease: EASE }}
+              key={`splat-${i}`}
+              className="absolute bg-[#06141B]"
+              style={{ width: splat.size, height: splat.size, borderRadius: splat.radius }}
+              initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
+              animate={{
+                x: splat.dx * span,
+                y: splat.dy * span,
+                scale: [0, 1.15, 1],
+                opacity: [1, 1, 0],
+              }}
+              transition={{
+                delay: BURST_AT,
+                duration: 1.15,
+                ease: [0.16, 1, 0.3, 1],
+                opacity: { delay: BURST_AT + 0.4, duration: 0.75 },
+              }}
             />
-            <motion.p
-              className="mt-5 font-mono text-xs uppercase tracking-[0.4em] text-[#9BABA8]"
-              initial={{ opacity: 0, letterSpacing: "0.9em" }}
-              animate={{ opacity: 1, letterSpacing: "0.4em" }}
-              transition={{ delay: 1.3, duration: 1, ease: EASE }}
-            >
-              Sahil Mishra
-            </motion.p>
-          </div>
+          ))}
+
+          {DROPLETS.map((drop, i) => (
+            <motion.span
+              key={`drop-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: drop.size * drop.stretch,
+                height: drop.size,
+                backgroundColor: drop.color,
+                rotate: `${(drop.angle * 180) / Math.PI}deg`,
+              }}
+              initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
+              animate={{
+                x: drop.dx * span,
+                y: drop.dy * span,
+                scale: [0, 1, 0.55],
+                opacity: [1, 1, 0],
+              }}
+              transition={{
+                delay: BURST_AT + drop.delay,
+                duration: 1.2,
+                ease: [0.12, 0.9, 0.25, 1],
+                opacity: { delay: BURST_AT + drop.delay + 0.5, duration: 0.7 },
+              }}
+            />
+          ))}
         </motion.div>
       )}
     </AnimatePresence>

@@ -68,15 +68,15 @@ export function WorkSection() {
   };
 
   return (
-    <section className="px-6 pt-24 pb-20 max-w-[90rem] mx-auto w-full">
-      <div className="text-center max-w-2xl mx-auto mb-10">
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#06141B]">Projects I&apos;ve shipped</h1>
+    <section className="px-4 sm:px-6 pt-20 sm:pt-24 pb-16 sm:pb-20 max-w-[90rem] mx-auto w-full">
+      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#06141B]">Projects I&apos;ve shipped</h1>
         <p className="mt-3 text-[#4A5C6A] text-base sm:text-lg leading-relaxed">
           Production work in payments, and the tools I built to understand how those systems work.
         </p>
       </div>
 
-      <div className="relative max-w-xl mx-auto mb-14">
+      <div className="relative max-w-xl mx-auto mb-10 sm:mb-14">
         <label htmlFor="work-search" className="sr-only">
           Search projects
         </label>
@@ -180,14 +180,14 @@ export function WorkSection() {
       </AnimatePresence>
 
       {results.length > 0 && (
-        <nav aria-label="Project pages" className="mt-14 flex justify-center">
-          <div className="clay flex items-center gap-2 rounded-[22px] p-2">
+        <nav aria-label="Project pages" className="mt-10 sm:mt-14 flex justify-center">
+          <div className="clay flex max-w-full items-center gap-1 sm:gap-2 overflow-x-auto rounded-[22px] p-1.5 sm:p-2">
             <button
               type="button"
               onClick={() => setPage(currentPage - 1)}
               disabled={currentPage === 1}
               aria-label="Previous page"
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -197,7 +197,7 @@ export function WorkSection() {
                 type="button"
                 onClick={() => setPage(number)}
                 aria-current={number === currentPage ? "page" : undefined}
-                className={`w-11 h-11 rounded-xl text-sm font-bold cursor-pointer ${
+                className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl text-sm font-bold cursor-pointer ${
                   number === currentPage ? "clay-dark" : "clay-pressed text-[#4A5C6A] hover:text-[#06141B]"
                 }`}
               >
@@ -209,7 +209,7 @@ export function WorkSection() {
               onClick={() => setPage(currentPage + 1)}
               disabled={currentPage === pageCount}
               aria-label="Next page"
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -249,19 +249,19 @@ function ProjectDialog({ project, onClose }: { project: WorkProject; onClose: ()
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.97 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="clay relative z-10 w-full max-w-4xl max-h-[88vh] overflow-y-auto rounded-[32px] p-7 sm:p-10"
+        className="clay relative z-10 w-full max-w-4xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl sm:rounded-[32px] p-5 sm:p-10"
       >
         <button
           type="button"
           onClick={onClose}
-          className="clay-button absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center text-[#253745] cursor-pointer"
+          className="clay-button absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center text-[#253745] cursor-pointer"
           aria-label="Close"
         >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-start gap-5 pr-14">
-          <div className="clay-button w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center text-[#11212D]">
+        <div className="flex items-start gap-3 sm:gap-5 pr-12">
+          <div className="clay-button hidden sm:flex w-14 h-14 shrink-0 rounded-2xl items-center justify-center text-[#11212D]">
             <Icon className="w-6 h-6" />
           </div>
           <div>

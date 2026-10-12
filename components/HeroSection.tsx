@@ -59,13 +59,13 @@ export function HeroSection() {
   const typed = useTypewriterLoop(SUBTITLE, ready);
 
   return (
-    <section className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center text-center px-6 py-20 bg-[#E7E8EA]">
+    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center text-center px-5 sm:px-6 py-24 bg-[#E7E8EA]">
       <WaveBackdrop />
       <motion.p
         initial={{ opacity: 0, y: 8 }}
         animate={ready ? { opacity: 1, y: 0 } : undefined}
         transition={{ duration: 0.6 }}
-        className="relative z-10 mb-10 text-xs md:text-sm font-mono tracking-[0.25em] text-muted-custom uppercase"
+        className="relative z-10 mb-8 sm:mb-10 max-w-xs sm:max-w-none text-[11px] sm:text-sm font-mono tracking-[0.12em] sm:tracking-[0.25em] text-muted-custom uppercase"
       >
         Software Engineer &amp; System Architect
       </motion.p>
@@ -79,7 +79,7 @@ export function HeroSection() {
             opacity: { duration: 0.8, ease: EASE },
             scale: { delay: 1.1, duration: 1.2, ease: EASE },
           }}
-          className="text-[clamp(4.25rem,13vw,12rem)] text-[#CCCDCF] origin-bottom"
+          className="text-[clamp(2.6rem,13vw,12rem)] text-[#CCCDCF] origin-bottom"
         >
           SAHIL
         </motion.span>
@@ -88,7 +88,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={ready ? { opacity: 1, y: 0 } : undefined}
           transition={{ delay: 1.5, duration: 1.2, ease: EASE }}
-          className="text-[clamp(4.25rem,13vw,12rem)] text-[#06141B]"
+          className="text-[clamp(2.6rem,13vw,12rem)] text-[#06141B]"
         >
           MISHRA
         </motion.span>
@@ -106,11 +106,11 @@ export function HeroSection() {
         initial={{ opacity: 0, y: 12 }}
         animate={ready ? { opacity: 1, y: 0 } : undefined}
         transition={{ delay: 2.6, duration: 0.6 }}
-        className="relative z-10 mt-10 flex flex-col sm:flex-row items-center gap-4"
+        className="relative z-10 mt-10 flex w-full max-w-xs flex-col items-stretch sm:max-w-none sm:flex-row sm:items-center sm:justify-center gap-4"
       >
         <Link
           href="/services"
-          className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#06141B] text-white font-mono text-sm font-medium shadow-[0_6px_20px_-8px_rgba(6,20,27,0.4)] hover:bg-[#253745] hover:-translate-y-0.5 transition-all duration-300"
+          className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#06141B] text-white font-mono text-sm font-medium shadow-[0_6px_20px_-8px_rgba(6,20,27,0.4)] hover:bg-[#253745] hover:-translate-y-0.5 transition-all duration-300"
         >
           Work With Me
           <ArrowUpRight className="w-4 h-4" />
