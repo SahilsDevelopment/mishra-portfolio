@@ -1,142 +1,88 @@
 "use client";
 
-import { useState } from "react";
-import { Mail, Phone, Copy, Check, Send, MapPin } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, Copy, Mail } from "lucide-react";
 import { PERSONAL_INFO } from "@/lib/constants";
 import { GithubIcon, LinkedinIcon, MediumIcon } from "@/components/SocialIcons";
-import { ComingSoonModal } from "@/components/ComingSoonModal";
-import confetti from "canvas-confetti";
+
+type CopyState = "idle" | "copied" | "error";
+
+const SOCIALS = [
+  { label: "GitHub", href: PERSONAL_INFO.socials.github, Icon: GithubIcon },
+  { label: "LinkedIn", href: PERSONAL_INFO.socials.linkedin, Icon: LinkedinIcon },
+  { label: "Medium", href: PERSONAL_INFO.socials.medium, Icon: MediumIcon },
+];
 
 export function ContactSection() {
-  const [copied, setCopied] = useState(false);
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [copyState, setCopyState] = useState<CopyState>("idle");
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(PERSONAL_INFO.email);
-    setCopied(true);
-    
-    // Trigger celebratory micro-animation
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.8 },
-      colors: ["#D95338", "#E26D5C", "#F3EFEA"]
-    });
+  useEffect(() => () => {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+  }, []);
 
-    setTimeout(() => setCopied(false), 2500);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(PERSONAL_INFO.email);
+      setCopyState("copied");
+    } catch {
+      setCopyState("error");
+    }
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setCopyState("idle"), 2000);
   };
 
   return (
-    <div className="w-full">
-      {/* Section Header */}
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <span className="text-xs font-bold uppercase tracking-widest text-accent-custom mb-2 block">
-          Get In Touch
-        </span>
-        <h2 className="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight">
-          Let&apos;s Build Something Great Together
-        </h2>
-        <p className="text-muted-custom mt-3 text-base sm:text-lg">
-          Whether you have a high-impact backend engineering role, a scaling challenge, or just want to connect — my inbox is open.
+    <section id="contact" className="py-24 px-6">
+      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-[0_30px_70px_-25px_rgba(6,20,27,0.35)] p-10 sm:p-16 text-center">
+        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">Let&apos;s Work Together</h2>
+        <p className="mt-4 text-muted-custom text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+          Open to backend engineering roles, system architecture consulting, and high-throughput
+          performance tuning projects.
         </p>
-      </div>
 
-      {/* Main Glassmorphic Contact Card */}
-      <div className="glass-panel max-w-3xl mx-auto p-8 sm:p-12 rounded-3xl text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent-custom/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="mt-10 mx-auto max-w-md flex items-center gap-2 p-2 pl-4 rounded-2xl bg-canvas border border-subtle-custom">
+          <Mail className="w-4 h-4 text-muted-custom shrink-0" />
+          <a
+            href={`mailto:${PERSONAL_INFO.email}`}
+            className="flex-1 min-w-0 truncate text-left font-mono text-sm sm:text-base text-main-custom hover:text-[#253745] transition-colors"
+          >
+            {PERSONAL_INFO.email}
+          </a>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+              copyState === "copied"
+                ? "bg-[#4A5C6A] text-white"
+                : copyState === "error"
+                  ? "bg-[#06141B] text-white"
+                  : "bg-[#06141B] text-white hover:bg-[#253745]"
+            }`}
+          >
+            {copyState === "copied" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copyState === "copied" ? "Copied!" : copyState === "error" ? "Failed" : "Copy"}
+          </button>
+        </div>
+        <p role="status" aria-live="polite" className="sr-only">
+          {copyState === "copied" ? "Email copied to clipboard" : copyState === "error" ? "Copy failed" : ""}
+        </p>
 
-        <div className="flex flex-col items-center gap-6 relative z-10">
-          <div className="p-4 rounded-full glass-pill text-accent-custom shadow-inner">
-            <Mail className="w-8 h-8" />
-          </div>
-
-          {/* Email Copy Card */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 glass-pill p-2 sm:p-2.5 pl-5 rounded-2xl border border-subtle-custom w-full max-w-md justify-between">
-            <span className="font-mono text-sm sm:text-base font-semibold text-main-custom select-all">
-              {PERSONAL_INFO.email}
-            </span>
-            <button
-              onClick={handleCopyEmail}
-              className="accent-pill-btn px-4 py-2 text-xs font-semibold flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5 text-white" />
-                  <span>Copy Email</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Phone & Location Details */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-muted-custom">
-            <span className="flex items-center gap-1.5 glass-pill px-3.5 py-1.5 rounded-full">
-              <Phone className="w-3.5 h-3.5 text-accent-custom" />
-              <span>{PERSONAL_INFO.phone}</span>
-            </span>
-
-            <span className="flex items-center gap-1.5 glass-pill px-3.5 py-1.5 rounded-full">
-              <MapPin className="w-3.5 h-3.5 text-amber-500" />
-              <span>{PERSONAL_INFO.location}</span>
-            </span>
-          </div>
-
-          {/* Primary Action Button */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center gap-4">
-            <button
-              onClick={() => setShowComingSoon(true)}
-              className="accent-pill-btn px-8 py-4 text-base flex items-center gap-2 cursor-pointer shadow-lg"
-            >
-              <Send className="w-4 h-4" />
-              <span>Say Hello via Email</span>
-            </button>
-          </div>
-
-          {/* Social Profiles Grid */}
-          <div className="pt-8 border-t border-subtle-custom w-full flex items-center justify-center gap-4">
+        <div className="mt-10 pt-8 border-t border-subtle-custom flex items-center justify-center gap-4">
+          {SOCIALS.map(({ label, href, Icon }) => (
             <a
-              href={PERSONAL_INFO.socials.github}
+              key={label}
+              href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="glass-pill p-3.5 rounded-full hover:text-accent-custom hover:scale-110 transition-all"
-              aria-label="GitHub Profile"
+              aria-label={label}
+              className="p-3 rounded-full bg-canvas border border-subtle-custom text-muted-custom hover:text-[#06141B] hover:border-[#06141B] transition-colors"
             >
-              <GithubIcon className="w-5 h-5" />
+              <Icon className="w-5 h-5" />
             </a>
-            <a
-              href={PERSONAL_INFO.socials.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass-pill p-3.5 rounded-full hover:text-accent-custom hover:scale-110 transition-all"
-              aria-label="LinkedIn Profile"
-            >
-              <LinkedinIcon className="w-5 h-5" />
-            </a>
-            <a
-              href={PERSONAL_INFO.socials.medium}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass-pill p-3.5 rounded-full hover:text-accent-custom hover:scale-110 transition-all"
-              aria-label="Medium Profile"
-            >
-              <MediumIcon className="w-5 h-5" />
-            </a>
-          </div>
+          ))}
         </div>
       </div>
-
-      {/* Feature Coming Soon Alert Modal */}
-      <ComingSoonModal
-        isOpen={showComingSoon}
-        onClose={() => setShowComingSoon(false)}
-        title="Direct Email Dispatcher Coming Soon!"
-        message="The integrated email dispatcher feature is currently under development. In the meantime, click 'Copy Email' above to copy prof.se.sahil@gmail.com directly or reach out via LinkedIn!"
-      />
-    </div>
+    </section>
   );
 }

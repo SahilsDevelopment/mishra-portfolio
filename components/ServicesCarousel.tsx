@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { SERVICES } from "@/lib/constants";
 import { ComingSoonModal } from "@/components/ComingSoonModal";
@@ -12,7 +12,7 @@ import {
   Server,
   Bot,
   Activity,
-  CheckCircle,
+  Check,
   LucideIcon,
   ArrowRight,
 } from "lucide-react";
@@ -25,13 +25,16 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Activity,
 };
 
+// Each step starts as the previous one ends, so the carousel never rests.
+const STEP_SECONDS = 2.4;
+const AUTOPLAY_MS = STEP_SECONDS * 1000;
+
 export function ServicesCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isTabHidden, setIsTabHidden] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [selectedServiceTitle, setSelectedServiceTitle] = useState("");
   const total = SERVICES.length;
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const nextCard = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % total);
@@ -42,37 +45,33 @@ export function ServicesCarousel() {
   }, [total]);
 
   useEffect(() => {
-    if (isPaused) return;
+    const onVisibilityChange = () => setIsTabHidden(document.hidden);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
 
-    timeoutRef.current = setInterval(() => {
-      nextCard();
-    }, 4500);
+  // Keyed on activeIndex so manual navigation restarts the countdown.
+  useEffect(() => {
+    if (showComingSoon || isTabHidden) return;
+    const timer = setTimeout(nextCard, AUTOPLAY_MS);
+    return () => clearTimeout(timer);
+  }, [activeIndex, showComingSoon, isTabHidden, nextCard]);
 
-    return () => {
-      if (timeoutRef.current) clearInterval(timeoutRef.current);
-    };
-  }, [isPaused, nextCard]);
-
-  const handleInquire = (title: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleInquire = (title: string) => {
     setSelectedServiceTitle(title);
     setShowComingSoon(true);
   };
 
   return (
-    <div
-      className="w-full relative py-8"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      {/* 3D Coverflow Container */}
-      <div className="relative h-[480px] sm:h-[500px] flex items-center justify-center carousel-container overflow-hidden">
+    <div className="w-full">
+      <div className="relative h-[420px] flex items-center justify-center overflow-hidden carousel-container">
         {SERVICES.map((service, index) => {
           let offset = index - activeIndex;
           if (offset < -Math.floor(total / 2)) offset += total;
           if (offset > Math.floor(total / 2)) offset -= total;
 
           const isActive = offset === 0;
+          const isVisible = Math.abs(offset) <= 1;
           const IconComponent = ICON_MAP[service.iconName] || Cpu;
 
           return (
@@ -80,119 +79,91 @@ export function ServicesCarousel() {
               key={service.id}
               initial={false}
               animate={{
-                x: offset * 280,
-                scale: isActive ? 1 : 0.82 - Math.abs(offset) * 0.05,
-                rotateY: offset * -18,
-                zIndex: 10 - Math.abs(offset),
-                opacity: Math.abs(offset) > 2 ? 0 : isActive ? 1 : 0.5,
-                filter: isActive ? "blur(0px)" : "blur(1.5px)",
+                x: `${offset * 78}%`,
+                scale: isActive ? 1 : 0.86,
+                rotateY: offset * -14,
+                opacity: isActive ? 1 : isVisible ? 0.45 : 0,
+                zIndex: isActive ? 3 : isVisible ? 2 : 1,
               }}
-              transition={{
-                duration: 0.6,
-                ease: [0.25, 1, 0.5, 1],
-              }}
-              onClick={() => setActiveIndex(index)}
-              className={`absolute top-0 w-[320px] sm:w-[420px] h-[440px] sm:h-[460px] p-6 sm:p-8 rounded-3xl cursor-pointer carousel-card glass-panel flex flex-col justify-between select-none ${
-                isActive
-                  ? "border-accent-custom/60 shadow-2xl ring-1 ring-amber-500/20"
-                  : "border-subtle-custom hover:border-accent-custom/30"
-              }`}
+              transition={{ duration: STEP_SECONDS, ease: "linear" }}
+              onClick={() => !isActive && setActiveIndex(index)}
+              aria-hidden={!isActive}
+              className={`clay absolute w-[300px] sm:w-[380px] h-[380px] p-7 carousel-card flex flex-col select-none ${
+                isActive ? "" : "cursor-pointer"
+              } ${isVisible ? "" : "pointer-events-none"}`}
             >
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div
-                    className={`p-3 rounded-2xl ${
-                      isActive
-                        ? "bg-accent-custom text-white shadow-md"
-                        : "glass-pill text-muted-custom"
-                    }`}
-                  >
-                    <IconComponent className="w-6 h-6" />
-                  </div>
-                  <span className="text-xs font-mono font-bold text-muted-custom">
-                    0{index + 1} / 0{total}
-                  </span>
-                </div>
-
-                <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-main-custom mb-3 leading-snug">
-                  {service.title}
-                </h3>
-
-                <p className="text-muted-custom text-sm sm:text-base leading-relaxed mb-6">
-                  {service.fullDescription}
-                </p>
-
-                <div className="space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-accent-custom block mb-2">
-                    Key Deliverables:
-                  </span>
-                  {service.deliverables.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 text-xs font-medium text-main-custom"
-                    >
-                      <CheckCircle className="w-3.5 h-3.5 text-accent-custom shrink-0" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-subtle-custom flex items-center justify-between">
-                <span className="text-xs font-semibold text-muted-custom">
-                  {isActive ? "Currently Active Service" : "Click to view details"}
+              <div className="flex items-center justify-between mb-8">
+                <span className="clay-button w-12 h-12 rounded-2xl flex items-center justify-center">
+                  <IconComponent className="w-5 h-5 text-accent-custom" />
                 </span>
-                <button
-                  onClick={(e) => handleInquire(service.title, e)}
-                  className={`text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer ${
-                    isActive
-                      ? "text-accent-custom hover:underline"
-                      : "text-muted-custom"
-                  }`}
-                >
-                  <span>Inquire Now</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <span className="text-xs font-mono text-muted-custom">
+                  0{index + 1} / 0{total}
+                </span>
               </div>
+
+              <h3 className="font-heading font-semibold text-xl sm:text-2xl text-main-custom mb-3 leading-snug">
+                {service.title}
+              </h3>
+
+              <p className="text-sm text-muted-custom leading-relaxed mb-6">
+                {service.shortDescription}
+              </p>
+
+              <ul className="space-y-2 mb-auto">
+                {service.deliverables.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-main-custom">
+                    <Check className="w-4 h-4 mt-0.5 text-accent-custom shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {isActive && (
+                <button
+                  onClick={() => handleInquire(service.title)}
+                  className="mt-6 self-start text-sm font-medium text-accent-custom inline-flex items-center gap-1.5 hover:gap-2.5 transition-all cursor-pointer"
+                >
+                  <span>Inquire</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </motion.div>
           );
         })}
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-8">
+      <div className="flex items-center justify-center gap-6 mt-6">
         <button
           onClick={prevCard}
-          className="p-3 rounded-full glass-pill text-main-custom hover:text-accent-custom hover:scale-110 transition-all cursor-pointer"
-          aria-label="Previous Service Card"
+          className="p-2 rounded-full text-muted-custom hover:text-main-custom transition-colors cursor-pointer"
+          aria-label="Previous service"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-2">
-          {SERVICES.map((_, idx) => (
+          {SERVICES.map((service, idx) => (
             <button
-              key={idx}
+              key={service.id}
               onClick={() => setActiveIndex(idx)}
-              className={`h-2.5 rounded-full transition-all cursor-pointer ${
-                idx === activeIndex
-                  ? "w-8 bg-accent-custom"
-                  : "w-2.5 bg-black/20 dark:bg-white/20 hover:bg-black/40"
+              className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
+                idx === activeIndex ? "w-6 bg-accent-custom" : "w-1.5 bg-[var(--border-strong)]"
               }`}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={`Go to service ${idx + 1}`}
+              aria-current={idx === activeIndex}
             />
           ))}
         </div>
 
         <button
           onClick={nextCard}
-          className="p-3 rounded-full glass-pill text-main-custom hover:text-accent-custom hover:scale-110 transition-all cursor-pointer"
-          aria-label="Next Service Card"
+          className="p-2 rounded-full text-muted-custom hover:text-main-custom transition-colors cursor-pointer"
+          aria-label="Next service"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Coming Soon Alert Modal */}
       <ComingSoonModal
         isOpen={showComingSoon}
         onClose={() => setShowComingSoon(false)}

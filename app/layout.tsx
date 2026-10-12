@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { CursorEffect } from "@/components/CursorEffect";
-import { IntroLoader } from "@/components/IntroLoader";
-
-const headingFont = Plus_Jakarta_Sans({
+import { SiteMenu } from "@/components/SiteMenu";
+import { SiteLogo } from "@/components/SiteLogo";
+import { WelcomeIntro } from "@/components/WelcomeIntro";
+const sansFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-heading",
-  weight: ["500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const bodyFont = Inter({
+const monoFont = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-body",
-  weight: ["400", "500", "600"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -37,14 +36,6 @@ export const metadata: Metadata = {
     "Jadavpur University",
   ],
   authors: [{ name: "Sahil Mishra", url: "https://github.com/sahilmishra1408" }],
-  icons: {
-    icon: [
-      { url: "/logo.png", type: "image/png" },
-      { url: "/icon.png", type: "image/png" },
-    ],
-    shortcut: "/logo.png",
-    apple: "/logo.png",
-  },
   openGraph: {
     title: "Sahil Mishra | Software Engineer",
     description:
@@ -62,15 +53,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      suppressHydrationWarning
-      className={`${headingFont.variable} ${bodyFont.variable} h-full antialiased`}
+      className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-canvas text-main-custom selection:bg-amber-500/20 selection:text-amber-600">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <IntroLoader />
-          <CursorEffect />
-          {children}
-        </ThemeProvider>
+      <body className="min-h-full flex flex-col font-sans bg-canvas text-main-custom selection:bg-[#11212D] selection:text-white">
+        <WelcomeIntro />
+        <SiteLogo />
+        <SiteMenu />
+        {children}
       </body>
     </html>
   );

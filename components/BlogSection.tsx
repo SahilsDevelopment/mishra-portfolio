@@ -1,12 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getLatestMediumArticles, MediumArticle, FEATURED_MEDIUM_ARTICLE } from "@/lib/medium";
-import { BookOpen, ExternalLink, ArrowRight, Clock } from "lucide-react";
-import { PERSONAL_INFO } from "@/lib/constants";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, Search, SearchX, X } from "lucide-react";
+import { FEATURED_MEDIUM_ARTICLE, getLatestMediumArticles, type MediumArticle } from "@/lib/medium";
+import { MediumIcon } from "@/components/SocialIcons";
+
+const PAGE_SIZE = 8;
+
+function matches(article: MediumArticle, query: string) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+  return [article.title, article.snippet, article.publishedAt, ...article.tags].join(" ").toLowerCase().includes(needle);
+}
 
 export function BlogSection() {
   const [articles, setArticles] = useState<MediumArticle[]>([FEATURED_MEDIUM_ARTICLE]);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     async function loadArticles() {
@@ -22,85 +33,175 @@ export function BlogSection() {
     loadArticles();
   }, []);
 
+  const results = useMemo(() => articles.filter((article) => matches(article, query)), [articles, query]);
+  const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const visible = results.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const updateQuery = (value: string) => {
+    setQuery(value);
+    setPage(1);
+  };
+
   return (
-    <div className="w-full">
-      {/* Section Header */}
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <span className="text-xs font-bold uppercase tracking-widest text-accent-custom mb-2 block">
-          Technical Writing
-        </span>
-        <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight">
-          Blogs & Production Insights
-        </h2>
-        <p className="text-muted-custom mt-2 text-sm sm:text-base">
-          Sharing real-world engineering learnings on performance profiling, microservices benchmarking, and backend architecture.
+    <section className="px-6 pt-24 pb-20 max-w-[90rem] mx-auto w-full">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#06141B]">Notes from production</h1>
+        <p className="mt-3 text-[#4A5C6A] text-base sm:text-lg leading-relaxed">
+          Write-ups on load, latency, and the systems that carry them.
         </p>
       </div>
 
-      {/* Featured Articles Container */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {articles.map((article, index) => (
-          <a
-            key={index}
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass-panel p-6 sm:p-8 rounded-3xl flex flex-col justify-between group hover:border-accent-custom/50"
+      <div className="relative max-w-xl mx-auto mb-14">
+        <label htmlFor="blog-search" className="sr-only">
+          Search articles
+        </label>
+        <div className="neo-inset flex items-center gap-3 pl-5 pr-2 py-2 rounded-full">
+          <Search className="w-5 h-5 text-[#4A5C6A] shrink-0" />
+          <input
+            id="blog-search"
+            value={query}
+            onChange={(event) => updateQuery(event.target.value)}
+            placeholder="Search articles, topics, tools..."
+            className="flex-1 min-w-0 bg-transparent py-2.5 text-base text-[#06141B] placeholder:text-[#9BABA8] outline-none"
+          />
+          <AnimatePresence>
+            {query && (
+              <motion.button
+                type="button"
+                onClick={() => updateQuery("")}
+                aria-label="Clear search"
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                className="neo-button shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[#253745] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {results.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="neo max-w-md mx-auto px-8 py-12 text-center"
           >
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="glass-pill px-3 py-1 rounded-full text-xs font-semibold text-accent-custom flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>Medium Article</span>
-                </span>
-                <span className="text-xs text-muted-custom flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  {article.readTime}
-                </span>
-              </div>
+            <motion.div
+              animate={{ rotate: [0, -10, 10, -6, 0], y: [0, -4, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 1.2 }}
+              className="neo-button mx-auto w-16 h-16 rounded-2xl flex items-center justify-center text-[#4A5C6A]"
+            >
+              <SearchX className="w-7 h-7" />
+            </motion.div>
+            <h2 className="mt-6 text-xl font-bold text-[#06141B]">No search results found</h2>
+            <p className="mt-2 text-sm text-[#4A5C6A]">
+              Nothing matches &ldquo;{query}&rdquo;. Try a title, a topic, or a tool.
+            </p>
+            <button
+              type="button"
+              onClick={() => updateQuery("")}
+              className="neo-dark mt-6 rounded-full px-5 py-2.5 text-sm font-semibold cursor-pointer"
+            >
+              Clear search
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`grid-${currentPage}-${query}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-wrap justify-center gap-7"
+          >
+            {visible.map((article, index) => (
+              <motion.article
+                key={article.url}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.35 }}
+                className="neo flex w-full flex-col p-6 sm:w-[calc((100%-1.75rem)/2)] xl:w-[calc((100%-5.25rem)/4)]"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="neo-button w-12 h-12 rounded-2xl flex items-center justify-center text-[#11212D]">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <p className="text-[11px] font-mono uppercase tracking-wider text-[#4A5C6A] text-right">
+                    {article.publishedAt}
+                    <span className="block mt-1 normal-case tracking-normal">{article.readTime}</span>
+                  </p>
+                </div>
+                <h2 className="mt-5 text-lg font-bold tracking-tight text-[#06141B] leading-snug">{article.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-[#4A5C6A] line-clamp-3 flex-1">{article.snippet}</p>
+                {article.tags.length > 0 && (
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {article.tags.slice(0, 3).map((tag) => (
+                      <li key={tag} className="neo-inset rounded-full px-3 py-1 text-[11px] font-semibold text-[#253745]">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="neo-dark mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold"
+                >
+                  <MediumIcon className="w-4 h-4" />
+                  Read Full Article
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+              </motion.article>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-              <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-main-custom group-hover:text-accent-custom transition-colors mb-3 leading-snug">
-                {article.title}
-              </h3>
-
-              <p className="text-muted-custom text-sm leading-relaxed mb-6">
-                {article.snippet}
-              </p>
-            </div>
-
-            <div>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {article.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="glass-pill px-2.5 py-1 rounded-md text-[11px] font-medium text-muted-custom"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-center text-xs font-bold text-accent-custom group-hover:translate-x-1.5 transition-transform gap-1.5">
-                <span>Read Full Article on Medium</span>
-                <ArrowRight className="w-4 h-4" />
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
-
-      {/* View Profile CTA */}
-      <div className="text-center">
-        <a
-          href={PERSONAL_INFO.socials.medium}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 glass-pill px-6 py-3 rounded-full text-sm font-semibold hover:border-accent-custom transition-all"
-        >
-          <span>Explore All Articles on Medium (@sahilmishra1408)</span>
-          <ExternalLink className="w-4 h-4 text-accent-custom" />
-        </a>
-      </div>
-    </div>
+      {results.length > 0 && (
+        <nav aria-label="Article pages" className="mt-10 flex justify-center">
+          <div className="neo flex items-center gap-2 rounded-[22px] p-2">
+            <button
+              type="button"
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            {Array.from({ length: pageCount }, (_, i) => i + 1).map((number) => (
+              <button
+                key={number}
+                type="button"
+                onClick={() => setPage(number)}
+                aria-current={number === currentPage ? "page" : undefined}
+                className={`w-11 h-11 rounded-xl text-sm font-bold cursor-pointer ${
+                  number === currentPage ? "neo-dark" : "neo-inset text-[#4A5C6A] hover:text-[#06141B]"
+                }`}
+              >
+                {number}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage === pageCount}
+              aria-label="Next page"
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </nav>
+      )}
+    </section>
   );
 }

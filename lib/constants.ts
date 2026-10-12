@@ -15,6 +15,17 @@ export interface WorkProject {
   technologies: string[];
   githubUrl?: string;
   liveUrl?: string;
+  details?: WorkProjectDetails;
+}
+
+export interface WorkProjectDetails {
+  status?: string;
+  goalsTitle?: string;
+  goals?: { title: string; text: string }[];
+  diagrams?: { title: string; body: string }[];
+  example?: { title: string; language: string; body: string }[];
+  roadmap?: { label: string; done: boolean }[];
+  note?: string;
 }
 
 export interface ServiceItem {
@@ -92,7 +103,15 @@ export const WORK_PROJECTS: WorkProject[] = [
     description: "Benchmarked 4 core microservices with k6 load testing and implemented targeted optimizations that scaled throughput from 34 TPS to 2,400 TPS (70x), significantly reducing P99 latency and enabling business growth without an infrastructure overhaul.",
     highlightMetric: "70x Throughput Scaling (34 → 2,400 TPS)",
     technologies: ["Java", "k6", "Go", "Prometheus", "Grafana", "PostgreSQL"],
-    liveUrl: "https://medium.com/@sahilmishra1408"
+    githubUrl: "https://github.com/SahilsDevelopment",
+    details: {
+      goalsTitle: "Highlights",
+      goals: [
+        { title: "Benchmark", text: "Load-tested 4 core microservices with k6 to find the real bottlenecks." },
+        { title: "Optimize", text: "Applied targeted fixes that took throughput from 34 TPS to 2,400 TPS." },
+        { title: "Impact", text: "Cut P99 latency and supported growth without an infrastructure overhaul." },
+      ],
+    },
   },
   {
     id: "core-mock",
@@ -102,7 +121,15 @@ export const WORK_PROJECTS: WorkProject[] = [
     periodOrYear: "Independent Build",
     description: "Built a fully functional mocking library from scratch using Java dynamic proxies and reflection, replicating core Mockito behaviors including method stubbing (when/thenReturn) and behavioral verification — deepening expertise in framework internals and design patterns.",
     technologies: ["Java", "Dynamic Proxies", "Reflection", "JUnit", "TDD"],
-    githubUrl: "https://github.com/SahilsDevelopment"
+    githubUrl: "https://github.com/SahilsDevelopment",
+    details: {
+      goalsTitle: "Highlights",
+      goals: [
+        { title: "Dynamic Proxies", text: "Mocks are generated at runtime with Java dynamic proxies and reflection." },
+        { title: "Stubbing", text: "Supports Mockito-style when/thenReturn method stubbing." },
+        { title: "Verification", text: "Verifies behavior by checking which calls a mock received." },
+      ],
+    },
   },
   {
     id: "task-orchestrator",
@@ -112,7 +139,69 @@ export const WORK_PROJECTS: WorkProject[] = [
     periodOrYear: "System Architecture",
     description: "Engineered a dual-interface task management system using Bubble Tea (TUI) and a React frontend, backed by a concurrent Go server; packaged and distributed via Docker Registry — demonstrating full-stack and DevOps capability.",
     technologies: ["Golang", "Bubble Tea", "React", "Docker", "REST API", "CI/CD"],
-    githubUrl: "https://github.com/SahilsDevelopment"
+    githubUrl: "https://github.com/SahilsDevelopment",
+    details: {
+      goalsTitle: "Highlights",
+      goals: [
+        { title: "Terminal UI", text: "A Bubble Tea TUI for managing tasks from the command line." },
+        { title: "Web UI", text: "A React frontend over the same concurrent Go server." },
+        { title: "Distribution", text: "Packaged and shipped through a Docker registry." },
+      ],
+    },
+  },
+  {
+    id: "forge-queue",
+    title: "ForgeQueue",
+    subtitle: "Distributed job processing with Java & Spring Boot",
+    companyOrType: "Distributed Systems",
+    periodOrYear: "In Progress",
+    description: "A distributed job processing system built with Java and Spring Boot, developed incrementally from a simple database-backed worker into a distributed architecture using Kafka and multiple workers.",
+    technologies: ["Java", "Spring Boot", "PostgreSQL", "Apache Kafka", "Docker"],
+    githubUrl: "https://github.com/SahilsDevelopment",
+    details: {
+      status: "In progress",
+      goals: [
+        { title: "Job Creation", text: "Accept and persist jobs through a REST API." },
+        { title: "Job Execution", text: "A worker picks up pending jobs and executes them." },
+        { title: "Distributed Processing", text: "Use Kafka to distribute jobs across multiple workers." },
+      ],
+      diagrams: [
+        {
+          title: "Initial Architecture",
+          body: "Client\n  │\n  │ POST /api/v1/jobs\n  ▼\nForgeQueue API\n  │\n  ▼\nPostgreSQL\n  │\n  ▼\nKafka\n  │\n  ├── Worker 1\n  ├── Worker 2\n  └── Worker 3",
+        },
+        {
+          title: "Job Lifecycle",
+          body: "CREATED\n   │\n   ▼\nRUNNING\n   │\n   ├──► COMPLETED\n   │\n   └──► FAILED",
+        },
+      ],
+      example: [
+        { title: "Create a Job", language: "http", body: "POST /api/v1/jobs\nContent-Type: application/json" },
+        {
+          title: "Request Body",
+          language: "json",
+          body: '{\n  "type": "EMAIL",\n  "payload": {\n    "to": "sahil@example.com",\n    "subject": "Welcome"\n  }\n}',
+        },
+        { title: "Response", language: "json", body: '{\n  "jobId": "job_123",\n  "status": "CREATED"\n}' },
+      ],
+      roadmap: [
+        { label: "Project initialization", done: true },
+        { label: "Job creation API", done: false },
+        { label: "Job persistence", done: false },
+        { label: "Basic job worker", done: false },
+        { label: "Job execution", done: false },
+        { label: "Kafka integration", done: false },
+        { label: "Multiple workers", done: false },
+        { label: "Idempotency", done: false },
+        { label: "Retry & failure handling", done: false },
+        { label: "Dead Letter Queue", done: false },
+        { label: "Scheduling", done: false },
+        { label: "Observability", done: false },
+        { label: "Load testing", done: false },
+        { label: "Kubernetes deployment", done: false },
+      ],
+      note: "The roadmap will be implemented incrementally. Each stage is designed to introduce and solve a specific distributed-systems problem.",
+    },
   }
 ];
 
