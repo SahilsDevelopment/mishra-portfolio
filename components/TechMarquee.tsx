@@ -49,10 +49,10 @@ function MarqueeGroup({ items, hidden = false }: { items: Tech[]; hidden?: boole
       {items.map(({ Icon, label }) => (
         <li
           key={label}
-          className="mr-5 flex items-center gap-3.5 px-8 py-5 rounded-full bg-white border border-[#EEF0F2] shadow-[0_8px_24px_-10px_rgba(6,20,27,0.22)] whitespace-nowrap"
+          className="mr-3 sm:mr-5 flex items-center gap-2.5 sm:gap-3.5 px-5 py-3 sm:px-8 sm:py-5 rounded-full bg-white border border-[#EEF0F2] shadow-[0_8px_24px_-10px_rgba(6,20,27,0.22)] whitespace-nowrap"
         >
-          <Icon className="w-7 h-7 text-[#06141B]" aria-hidden />
-          <span className="text-lg sm:text-xl font-bold tracking-tight text-[#06141B]">{label}</span>
+          <Icon className="w-5 h-5 sm:w-7 sm:h-7 text-[#06141B]" aria-hidden />
+          <span className="text-base sm:text-xl font-bold tracking-tight text-[#06141B]">{label}</span>
         </li>
       ))}
     </ul>
@@ -61,9 +61,9 @@ function MarqueeGroup({ items, hidden = false }: { items: Tech[]; hidden?: boole
 
 export function TechMarquee() {
   return (
-    <div className="py-20">
-      <div className="max-w-7xl mx-auto px-6 mb-14 text-center">
-        <h2 className="text-4xl sm:text-6xl font-extrabold tracking-[-0.03em] text-[#06141B]">
+    <div className="py-14 sm:py-20">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 mb-10 sm:mb-14 text-center">
+        <h2 className="text-3xl sm:text-6xl font-extrabold tracking-[-0.03em] text-[#06141B]">
           Technology Ecosystem
         </h2>
         <p className="mt-4 text-base sm:text-lg font-medium text-[#4A5C6A]">

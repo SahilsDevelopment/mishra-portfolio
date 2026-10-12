@@ -44,15 +44,15 @@ export function BlogSection() {
   };
 
   return (
-    <section className="px-6 pt-24 pb-20 max-w-[90rem] mx-auto w-full">
-      <div className="text-center max-w-2xl mx-auto mb-10">
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#06141B]">Notes from production</h1>
+    <section className="px-4 sm:px-6 pt-20 sm:pt-24 pb-16 sm:pb-20 max-w-[90rem] mx-auto w-full">
+      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#06141B]">Notes from production</h1>
         <p className="mt-3 text-[#4A5C6A] text-base sm:text-lg leading-relaxed">
           Write-ups on load, latency, and the systems that carry them.
         </p>
       </div>
 
-      <div className="relative max-w-xl mx-auto mb-14">
+      <div className="relative max-w-xl mx-auto mb-10 sm:mb-14">
         <label htmlFor="blog-search" className="sr-only">
           Search articles
         </label>
@@ -167,13 +167,13 @@ export function BlogSection() {
 
       {results.length > 0 && (
         <nav aria-label="Article pages" className="mt-10 flex justify-center">
-          <div className="neo flex items-center gap-2 rounded-[22px] p-2">
+          <div className="neo flex max-w-full items-center gap-1 sm:gap-2 overflow-x-auto rounded-[22px] p-1.5 sm:p-2">
             <button
               type="button"
               onClick={() => setPage(currentPage - 1)}
               disabled={currentPage === 1}
               aria-label="Previous page"
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -183,7 +183,7 @@ export function BlogSection() {
                 type="button"
                 onClick={() => setPage(number)}
                 aria-current={number === currentPage ? "page" : undefined}
-                className={`w-11 h-11 rounded-xl text-sm font-bold cursor-pointer ${
+                className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl text-sm font-bold cursor-pointer ${
                   number === currentPage ? "neo-dark" : "neo-inset text-[#4A5C6A] hover:text-[#06141B]"
                 }`}
               >
@@ -195,7 +195,7 @@ export function BlogSection() {
               onClick={() => setPage(currentPage + 1)}
               disabled={currentPage === pageCount}
               aria-label="Next page"
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-[#4A5C6A] disabled:opacity-35 enabled:hover:text-[#06141B] cursor-pointer disabled:cursor-default"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

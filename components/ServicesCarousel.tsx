@@ -64,7 +64,7 @@ export function ServicesCarousel() {
 
   return (
     <div className="w-full">
-      <div className="relative h-[420px] flex items-center justify-center overflow-hidden carousel-container">
+      <div className="relative h-[min(420px,72vh)] sm:h-[420px] flex items-center justify-center overflow-hidden carousel-container">
         {SERVICES.map((service, index) => {
           let offset = index - activeIndex;
           if (offset < -Math.floor(total / 2)) offset += total;
@@ -88,11 +88,11 @@ export function ServicesCarousel() {
               transition={{ duration: STEP_SECONDS, ease: "linear" }}
               onClick={() => !isActive && setActiveIndex(index)}
               aria-hidden={!isActive}
-              className={`clay absolute w-[300px] sm:w-[380px] h-[380px] p-7 carousel-card flex flex-col select-none ${
+              className={`clay absolute w-[min(22rem,calc(100vw-3.5rem))] sm:w-[380px] h-[min(360px,68vh)] sm:h-[380px] overflow-y-auto p-5 sm:p-7 carousel-card flex flex-col select-none ${
                 isActive ? "" : "cursor-pointer"
               } ${isVisible ? "" : "pointer-events-none"}`}
             >
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-5 sm:mb-8">
                 <span className="clay-button w-12 h-12 rounded-2xl flex items-center justify-center">
                   <IconComponent className="w-5 h-5 text-accent-custom" />
                 </span>
@@ -105,13 +105,13 @@ export function ServicesCarousel() {
                 {service.title}
               </h3>
 
-              <p className="text-sm text-muted-custom leading-relaxed mb-6">
+              <p className="text-sm text-muted-custom leading-relaxed mb-4 sm:mb-6 line-clamp-3 sm:line-clamp-none">
                 {service.shortDescription}
               </p>
 
               <ul className="space-y-2 mb-auto">
                 {service.deliverables.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-main-custom">
+                  <li key={item} className="flex items-start gap-2 text-xs sm:text-sm text-main-custom">
                     <Check className="w-4 h-4 mt-0.5 text-accent-custom shrink-0" />
                     <span>{item}</span>
                   </li>

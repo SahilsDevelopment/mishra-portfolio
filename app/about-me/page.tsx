@@ -38,7 +38,7 @@ export default function AboutMePage() {
     <div className="flex min-h-dvh flex-col bg-[#F3F3F1] lg:h-dvh lg:overflow-hidden">
       <main className="flex min-h-0 flex-1 flex-col px-4 pt-20 pb-4 sm:px-6 lg:px-8 lg:pt-[4.5rem] lg:pb-4">
         <article className="mx-auto flex w-full max-w-[88rem] flex-1 flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_24px_70px_-36px_rgba(6,20,27,0.35)] lg:min-h-0 lg:flex-row">
-          <div className="relative h-80 w-full shrink-0 bg-[#1a1a1a] sm:h-[28rem] lg:h-full lg:w-[44%]">
+          <div className="relative h-72 w-full shrink-0 bg-[#1a1a1a] sm:h-[28rem] lg:h-full lg:w-[44%]">
             <Image
               src="/Sahil.png"
               alt="Sahil Mishra standing by the sea"
@@ -56,8 +56,8 @@ export default function AboutMePage() {
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col px-7 py-8 sm:px-10 lg:px-14 lg:py-[clamp(1.25rem,3vh,2.25rem)]">
-            <h1 className={`${display.className} text-[clamp(3.5rem,8vh,5.75rem)] leading-[0.86] font-medium tracking-[-0.03em] text-[#161616]`}>
+          <div className="flex min-h-0 flex-1 flex-col px-5 py-7 sm:px-10 lg:px-14 lg:py-[clamp(1.25rem,3vh,2.25rem)]">
+            <h1 className={`${display.className} text-5xl sm:text-6xl lg:text-[clamp(3.5rem,8vh,5.75rem)] leading-[0.86] font-medium tracking-[-0.03em] text-[#161616]`}>
               About
               <br />
               Me<span className="text-[#E23B2F]">.</span>
@@ -71,7 +71,7 @@ export default function AboutMePage() {
 
             <div className="mt-8 lg:mt-auto lg:pt-[clamp(0.5rem,1.5vh,1rem)]">
               <p className={`${signature.className} text-[clamp(2.75rem,5vh,3.75rem)] leading-none text-[#161616]`}>sahil</p>
-              <p className="mt-1 text-xs tracking-wide text-[#6d6d6d]">{PERSONAL_INFO.email}</p>
+              <p className="mt-1 break-all text-xs tracking-wide text-[#6d6d6d]">{PERSONAL_INFO.email}</p>
             </div>
           </div>
         </article>
