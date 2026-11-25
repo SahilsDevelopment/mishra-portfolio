@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { particleConfig } from "@/lib/seasons";
+import { useSeason } from "./SeasonProvider";
 
 const DONE_EVENT = "welcome-intro-done";
-const PAINT = ["#06141B", "#11212D", "#253745", "#4A5C6A"];
 
 // Drop, bounce, bounce, then burst. Times are fractions of BALL_S.
 const BALL_S = 2.15;
@@ -46,7 +47,6 @@ const DROPLETS = Array.from({ length: 44 }, (_, i) => {
     dy: Math.sin(angle) * reach,
     size,
     stretch: 1.4 + seeded(i + 300) * 1.8,
-    color: PAINT[i % PAINT.length],
     delay: seeded(i + 400) * 0.08,
   };
 });
@@ -66,10 +66,14 @@ const FALL = [0.55, 0, 1, 0.55] as const;
 const RISE = [0.15, 0.7, 0.3, 1] as const;
 
 export function WelcomeIntro() {
+  const { season } = useSeason();
   const isClient = useIsClient();
   const [playing, setPlaying] = useState(true);
   const reduced = isClient && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const span = isClient ? Math.max(window.innerWidth, window.innerHeight) : 1600;
+
+  // The accent, plus the season's own particle colours (petals, fireflies, rain...).
+  const palette = ["var(--accent)", ...(season ? particleConfig[season].c : [])];
 
   useEffect(() => {
     if (!isClient || introDone) return;
@@ -93,7 +97,7 @@ export function WelcomeIntro() {
     };
   }, [isClient, reduced]);
 
-  const visible = isClient && playing && !reduced;
+  const visible = isClient && playing && !reduced && !introDone;
 
   return (
     <AnimatePresence>
@@ -101,12 +105,12 @@ export function WelcomeIntro() {
         <motion.div
           key="welcome"
           aria-hidden
-          className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden bg-white"
+          className="wi"
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         >
           <motion.span
-            className="absolute h-10 w-28 rounded-[50%] bg-[#06141B]/15 blur-md"
+            className="wi-shadow"
             initial={{ opacity: 0, scale: 0.2, y: 78 }}
             animate={{
               opacity: [0, 0.85, 0.15, 0.7, 0.1, 0.9, 0],
@@ -116,7 +120,7 @@ export function WelcomeIntro() {
           />
 
           <motion.span
-            className="absolute h-32 w-32 rounded-full bg-[#06141B] shadow-[0_22px_36px_-14px_rgba(6,20,27,0.6)]"
+            className="wi-ball"
             initial={{ y: "-70vh", scaleX: 0.86, scaleY: 1.22 }}
             animate={{
               y: ["-70vh", "0vh", "-22vh", "0vh", "-9vh", "0vh", "0vh", "0vh"],
@@ -131,7 +135,7 @@ export function WelcomeIntro() {
           />
 
           <motion.span
-            className="absolute h-24 w-24 rounded-full border-[3px] border-[#253745]"
+            className="wi-ring"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: [0, 8], opacity: [0.55, 0] }}
             transition={{ delay: BURST_AT, duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
@@ -140,7 +144,7 @@ export function WelcomeIntro() {
           {SPLATS.map((splat, i) => (
             <motion.span
               key={`splat-${i}`}
-              className="absolute bg-[#06141B]"
+              className="wi-splat"
               style={{ width: splat.size, height: splat.size, borderRadius: splat.radius }}
               initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
               animate={{
@@ -161,11 +165,11 @@ export function WelcomeIntro() {
           {DROPLETS.map((drop, i) => (
             <motion.span
               key={`drop-${i}`}
-              className="absolute rounded-full"
+              className="wi-drop"
               style={{
                 width: drop.size * drop.stretch,
                 height: drop.size,
-                backgroundColor: drop.color,
+                backgroundColor: palette[i % palette.length],
                 rotate: `${(drop.angle * 180) / Math.PI}deg`,
               }}
               initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}

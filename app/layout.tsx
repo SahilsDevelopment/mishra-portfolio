@@ -1,24 +1,30 @@
-import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Instrument_Sans } from "next/font/google";
 import "./globals.css";
-import { SiteMenu } from "@/components/SiteMenu";
-import { SiteLogo } from "@/components/SiteLogo";
+import { Header } from "@/components/Header";
+import { LightningFlash } from "@/components/LightningFlash";
+import { ParticleCanvas } from "@/components/ParticleCanvas";
+import { SeasonProvider } from "@/components/SeasonProvider";
 import { WelcomeIntro } from "@/components/WelcomeIntro";
-const sansFont = Plus_Jakarta_Sans({
+
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 
-const monoFont = JetBrains_Mono({
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-jetbrains",
-  weight: ["400", "500", "700"],
+  variable: "--font-instrument-sans",
   display: "swap",
 });
 
 export const metadata: Metadata = {
+  // Absolute base for Open Graph / Twitter image URLs. Set NEXT_PUBLIC_SITE_URL to your live domain
+  // (e.g. https://your-domain.com) in your hosting provider's environment settings.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Sahil Mishra | Software Engineer — Backend & AI Systems",
   description:
     "Personal portfolio of Sahil Mishra, Software Engineer specializing in high-throughput backend microservices, distributed infrastructure, performance engineering, and AI automation.",
@@ -45,21 +51,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+// Runs before paint so the saved/seasonal theme is applied without a flash.
+const themeInit = `(function(){try{var d=document.documentElement,s=localStorage.getItem("season"),ok=["spring","summer","monsoon","autumn","winter"];if(ok.indexOf(s)<0){var m=new Date().getMonth();s=(m==0||m==11)?"winter":m<3?"spring":m<6?"summer":m<9?"monsoon":"autumn"}d.setAttribute("data-season",s);var h=new Date().getHours();d.setAttribute("data-tod",h>=5&&h<8?"dawn":h>=8&&h<17?"day":h>=17&&h<19?"dusk":"night");d.classList.add("js")}catch(e){}})();`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
+      className={`${fraunces.variable} ${instrumentSans.variable}`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans bg-canvas text-main-custom selection:bg-[#11212D] selection:text-white">
-        <WelcomeIntro />
-        <SiteLogo />
-        <SiteMenu />
-        {children}
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
+      <body>
+        <SeasonProvider>
+          <WelcomeIntro />
+          <ParticleCanvas />
+          <LightningFlash />
+          <Header />
+          {children}
+        </SeasonProvider>
       </body>
     </html>
   );

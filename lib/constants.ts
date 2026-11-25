@@ -1,9 +1,3 @@
-export interface TechCategory {
-  title: string;
-  iconName: string;
-  items: string[];
-}
-
 export interface WorkProject {
   id: string;
   title: string;
@@ -31,7 +25,6 @@ export interface WorkProjectDetails {
 export interface ServiceItem {
   id: string;
   title: string;
-  iconName: string;
   shortDescription: string;
   fullDescription: string;
   deliverables: string[];
@@ -59,39 +52,6 @@ export const PERSONAL_INFO = {
     { label: "Education", value: "Jadavpur Univ", subtext: "B.E. Computer Science" },
   ]
 };
-
-export const TECH_CATEGORIES: TechCategory[] = [
-  {
-    title: "Languages",
-    iconName: "Code2",
-    items: ["Java", "Golang", "TypeScript", "SQL"]
-  },
-  {
-    title: "Testing & Quality",
-    iconName: "CheckCircle2",
-    items: ["JUnit", "Mockito", "TDD", "k6 (Load Testing)"]
-  },
-  {
-    title: "Cloud & DevOps",
-    iconName: "Cloud",
-    items: ["AWS (EC2, S3)", "Kubernetes", "Docker", "Terraform", "GitHub Actions", "CI/CD"]
-  },
-  {
-    title: "Data & Messaging",
-    iconName: "Database",
-    items: ["PostgreSQL", "Apache Kafka", "Zookeeper", "Flyway", "MinIO"]
-  },
-  {
-    title: "Observability & Security",
-    iconName: "ShieldCheck",
-    items: ["Jaeger", "Prometheus", "Grafana", "Keycloak", "RBAC"]
-  },
-  {
-    title: "AI & Emerging Tech",
-    iconName: "Sparkles",
-    items: ["MCP (Model Context Protocol)", "Prompt Engineering", "AI Workflow Automation"]
-  }
-];
 
 export const WORK_PROJECTS: WorkProject[] = [
   {
@@ -209,7 +169,6 @@ export const SERVICES: ServiceItem[] = [
   {
     id: "backend-api-dev",
     title: "Backend & API Development",
-    iconName: "Cpu",
     shortDescription: "Designing scalable microservices in Java/Go with clean architecture and TDD.",
     fullDescription: "Architecting resilient, event-driven microservices tailored for payments and fintech. I build clean, test-driven REST & gRPC APIs with robust error handling and high concurrent safety.",
     deliverables: ["Clean Architecture & Domain Driven Design", "High-Concurrency Java / Golang APIs", "Comprehensive Unit & Integration Test Suites"]
@@ -217,7 +176,6 @@ export const SERVICES: ServiceItem[] = [
   {
     id: "performance-engineering",
     title: "Performance Engineering",
-    iconName: "Zap",
     shortDescription: "Load testing, profiling, and optimization to achieve production-grade throughput.",
     fullDescription: "Diagnostic benchmarking using k6 load testing, CPU/memory profiling, database query indexing, and lock contention elimination. Proven track record of boosting TPS by up to 70x.",
     deliverables: ["k6 Load & Stress Test Suites", "P99 Latency & Bottleneck Analysis", "Database Query & Threading Optimization"]
@@ -225,7 +183,6 @@ export const SERVICES: ServiceItem[] = [
   {
     id: "devops-cloud-infra",
     title: "DevOps & Cloud Infra",
-    iconName: "Server",
     shortDescription: "CI/CD pipelines, containerization, and AWS/Kubernetes deployments.",
     fullDescription: "Automating cloud infrastructure delivery with Infrastructure-as-Code (Terraform), Docker containerization, Kubernetes orchestrations, and automated GitHub Actions deployment pipelines.",
     deliverables: ["Terraform IaC & AWS Cloud Setup", "Docker & Kubernetes Deployment Manifests", "Automate GitHub Actions CI/CD"]
@@ -233,7 +190,6 @@ export const SERVICES: ServiceItem[] = [
   {
     id: "ai-workflow-automation",
     title: "AI Workflow Automation",
-    iconName: "Bot",
     shortDescription: "Integrating MCP and prompt engineering into engineering workflows to cut manual effort.",
     fullDescription: "Leveraging Model Context Protocol (MCP), custom tools, and automated AI agents to accelerate code reviews by 40%, automate repetitive engineering tasks, and supercharge team velocity.",
     deliverables: ["Model Context Protocol (MCP) Integrations", "Custom AI Agent Tooling & Workflows", "Automated Code Review & PR Assistant Pipelines"]
@@ -241,7 +197,6 @@ export const SERVICES: ServiceItem[] = [
   {
     id: "security-observability",
     title: "Security & Observability Setup",
-    iconName: "Activity",
     shortDescription: "RBAC with Keycloak, distributed tracing with Jaeger, dashboards with Prometheus/Grafana.",
     fullDescription: "Full-stack observability and enterprise security setup. Implementing distributed request tracing across microservices, real-time metric dashboards, and enterprise RBAC identity management.",
     deliverables: ["Keycloak Identity & RBAC Authentication", "Prometheus & Grafana Real-Time Monitoring", "Distributed Tracing with Jaeger & OpenTelemetry"]
